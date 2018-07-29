@@ -1,0 +1,6 @@
+C:\Users\Alex\Documents\SharpDevelop Projects\PermTest\PermTest\bin\Debug\PermTest.exe.config
+C:\Users\Alex\Documents\SharpDevelop Projects\PermTest\PermTest\bin\Debug\PermTest.exe
+C:\Users\Alex\Documents\SharpDevelop Projects\PermTest\PermTest\bin\Debug\PermTest.pdb
+C:\Users\Alex\Documents\SharpDevelop Projects\PermTest\PermTest\obj\Debug\PermTest.csprojResolveAssemblyReference.cache
+C:\Users\Alex\Documents\SharpDevelop Projects\PermTest\PermTest\obj\Debug\PermTest.exe
+C:\Users\Alex\Documents\SharpDevelop Projects\PermTest\PermTest\obj\Debug\PermTest.pdb
