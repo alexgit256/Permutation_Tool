@@ -8,6 +8,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Permutation_Tool
 {
@@ -24,40 +25,14 @@ namespace Permutation_Tool
 			//Console.WriteLine(Factorial(5));
 			Permutation test = new Permutation(size);
 			
-			for(int i=0; i<Factorial(size)+1;i++)
+			for(int i=0; i<Utils.Factorial(size)+1;i++)
 			{
-				Console.WriteLine("{0}) {1} is {2};",i,test.StringPermutationAccessor,test.ToLecsicNumber());
+				Console.WriteLine("{0}) {1} is {2}; And again to number {3}",i,test.StringPermutationAccessor,Permutation.ToLecsicNumber(test), Permutation.FromLecsicNumber(size,i).StringPermutationAccessor);
 				test=test.GetNextPermutation();
 			}
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
-		}
-		
-		public static int Factorial(int input)
-		{
-			int outp=1;
-			try
-			{
-				for(int i=2;i<=input;i++)
-				outp*=i;
-			}
-			catch(OverflowException ex)	{Console.WriteLine(ex.ToString());}
-			return outp;
-		}
-		
-		public static void Swap<T>(IList<T> list, int indexA, int indexB)
-		{
-    		T tmp = list[indexA];
-    		list[indexA] = list[indexB];
-    		list[indexB] = tmp;
-		}
-		
-		public static void printIntArray(int[] x)
-		{
-			foreach (int t in x) {
-				Console.Write("{0}, ",t);
-			}
 		}
 	}
 	
@@ -68,7 +43,13 @@ namespace Permutation_Tool
 		protected int numberEquialent;
 		protected List<int> thisPermutation;
 		
+		public BigInteger BigLecsicNumber { get { throw new NotImplementedException(); } }
 		public int NumOfElems { get {return numOfElems; } }
+		public long LecsicNumber 
+		{
+			get { return Permutation.ToLecsicNumber(this); }
+			set { throw new NotImplementedException(); }
+		}
 		public int[] PermutationAccessor { get {return thisPermutation.ToArray(); } }
 		public string StringPermutationAccessor
 		{
@@ -94,7 +75,7 @@ namespace Permutation_Tool
 					for (int j=i+1;j<=numOfElems-1;j++)
 						if ((tmp[j]<thisPermutation[minInd]) && (tmp[j]>tmp[i]))
 							minInd=j;
-					Program.Swap(tmp,i,minInd);
+					Utils.Swap(tmp,i,minInd);
 					//Program.printIntArray(tmp.ToArray());
 					//Console.Write(" => ");	//debug
 					tmp.Reverse(i+1,numOfElems-i-1);
@@ -107,21 +88,55 @@ namespace Permutation_Tool
 			return new Permutation(numOfElems);	//if it was the last permutation, then overflow to 0-permutation			
 		}
 		
-		public int ToLecsicNumber()
+		public static long ToLecsicNumber(Permutation x)
 		{
-			bool[] was=new bool[numOfElems];	//wheather elem was used
-			for (int i=0; i<numOfElems;i++)
+			bool[] was=new bool[x.numOfElems];	//wheather elem was used
+			for (int i=0; i<x.numOfElems;i++)
 				was[i]=false;
 			
-			int numToPermutation=0;
-			for (int i = 0; i<numOfElems; i++)
+			long numToPermutation=0;
+			for (int i = 0; i<x.numOfElems; i++)
 			{
-				for (int j = 0; j<thisPermutation[i]; j++)
+				for (int j = 0; j<x.thisPermutation[i]; j++)
 					if (!was[j])
-						numToPermutation+=Program.Factorial(numOfElems-i-1);
-				was[thisPermutation[i]]=true;
+						numToPermutation+=Utils.Factorial(x.numOfElems-i-1);
+				was[x.thisPermutation[i]]=true;
 			}
 			return numToPermutation;
+		}
+		
+		public static Permutation FromLecsicNumber(int size, long LNumber)
+		{
+			if (LNumber>=Utils.Factorial(size))
+				LNumber%=Utils.Factorial(size);
+			long alreadyWas;
+			int curFree;
+			long LN = LNumber;
+			int[] intArray = new int[size];
+			bool[] was = new bool[size];
+			for (int i=0;i<size; i++)
+				was[i]=false;
+			
+			for (int i=0; i<size; i++)
+			{
+				alreadyWas=(long)(LN/Utils.Factorial(size-i-1));
+				LN%=Utils.Factorial(size-i-1);
+				curFree=0;
+				for (int j=0; j<size; j++)
+				{
+					if (!was[j])
+					{
+						curFree++;
+						if(curFree==(alreadyWas+1))
+						{
+							intArray[i]=j;
+							was[j]=true;
+						}
+					}
+				}
+			}
+			
+			return new Permutation(intArray);
 		}
 		
 		public Permutation()
@@ -143,6 +158,37 @@ namespace Permutation_Tool
 		{
 			this.thisPermutation=new List<int>(inputPermutation);
 			this.numOfElems=inputPermutation.Length;
+		}
+	}
+	
+	public static class Utils
+	{
+		public static long Factorial(int input)
+		{
+			if (input<2)
+				return 1;
+			int outp=1;
+			try
+			{
+				for(int i=2;i<=input;i++)
+				outp*=i;
+			}
+			catch(OverflowException ex)	{Console.WriteLine(ex.ToString());}
+			return outp;
+		}
+		
+		public static void Swap<T>(IList<T> list, int indexA, int indexB)
+		{
+    		T tmp = list[indexA];
+    		list[indexA] = list[indexB];
+    		list[indexB] = tmp;
+		}
+		
+		public static void printIntArray(int[] x)
+		{
+			foreach (int t in x) {
+				Console.Write("{0}, ",t);
+			}
 		}
 	}
 }
