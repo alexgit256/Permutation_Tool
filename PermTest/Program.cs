@@ -22,7 +22,8 @@ namespace Permutation_Tool
 		{
 			Console.WriteLine("Hello World!");
 			//TestDebug.TestEnumberAllPermutations,false);
-			TestDebug.TestSumEfficiecy(7,1000000,false);
+			//TestDebug.TestSumEfficiecy(7,1000000,false);
+			TestDebug.TestSubstitutionEfficiency(7,1000000,false);
 			
 			Console.Write("Press any key to continue . . . ");
 			Console.ReadKey(true);
@@ -55,7 +56,7 @@ namespace Permutation_Tool
 				Console.WriteLine("\n{0} is A lecs: {1}, \n{2} is B lecs: {3}, \n{4} is A*B lecs {5}", a.StringPermutationAccessor, a.LecsicNumber,b.StringPermutationAccessor,b.LecsicNumber, c.StringPermutationAccessor,c.LecsicNumber);
 			}
 			
-			public static void TestSumEfficiecy(int size, bool enableOutput)
+			public static void TestSumEfficiency(int size, bool enableOutput)
 			{
 				
 				Permutation a,b,c;
@@ -86,7 +87,7 @@ namespace Permutation_Tool
 							b=Permutation.FromLecsicNumber(size,j);
 							c=a+b;
 							if (enableOutput)
-								Console.Write("permutation: {0} lecsic number {3} = {1}+{2} ", c.StringPermutationAccessor, i, j, c.LecsicNumber);
+								Console.WriteLine("permutation: {0} lecsic number {3} = {1}+{2} ", c.StringPermutationAccessor, i, j, c.LecsicNumber);
 							debug++;
 							if(debug>=upperBound)
 							{
@@ -99,6 +100,37 @@ namespace Permutation_Tool
 				Console.WriteLine("{0} calculations performed within {1} time", Utils.Factorial(size)*Utils.Factorial(size), sw.Elapsed);
 			}
 			
+			public static void TestInversePermutation(int size, long permNum)
+			{
+				Permutation x = Permutation.FromLecsicNumber(size,permNum);
+				var y=Permutation.Inverse(x);
+				Console.WriteLine("{0} mult {1} is {2} which means {3}*{4}={5}",x.StringPermutationAccessor,y.StringPermutationAccessor,(x*y).StringPermutationAccessor,x.LecsicNumber,y.LecsicNumber,(x*y).LecsicNumber);
+			}
+			
+			public static void TestSubstitutionEfficiency(int size, int upperBound, bool enableOutput)
+			{
+				Permutation a,b,c;
+				int debug=0;
+				System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+				for (int i=0;i<Utils.Factorial(size);i++)
+					for (int j=0;j<Utils.Factorial(size);j++)
+						{
+							a= Permutation.FromLecsicNumber(size,i);
+							b=Permutation.FromLecsicNumber(size,j);
+							c=a-b;
+							if (enableOutput)
+								Console.WriteLine("permutation: {0} lecsic number {3} = {1}-{2} ", c.StringPermutationAccessor, i, j, c.LecsicNumber);
+							debug++;
+							if(debug>=upperBound)
+							{
+								sw.Stop();
+								Console.WriteLine("{0} calculations performed within {1} time", debug, sw.Elapsed);
+								return;
+							}
+						}
+				sw.Stop();
+				Console.WriteLine("{0} calculations performed within {1} time", Utils.Factorial(size)*Utils.Factorial(size), sw.Elapsed);
+			}
 		}
 	}
 	
@@ -301,6 +333,27 @@ namespace Permutation_Tool
 			return new Permutation(c);
 		}
 		
+		public static Permutation InverseSign(Permutation x)
+		{
+			BigInteger a=x.BigLecsicNumber;
+			BigInteger result;
+			if (x.BigLecsicNumber==0)
+				result=0;
+			else
+				result=Utils.BigFactorial(x.NumOfElems)-a;	//arithmetic modulus Factorial(NumOfElems)
+			return Permutation.FromBigLecsicNumber(x.NumOfElems,result);
+		}
+		
+		public static Permutation Inverse(Permutation x)
+		{
+			int[] tmp = x.PermutationAccessor;
+			int[] output = new int[x.NumOfElems];
+			for (int i=0; i< x.NumOfElems; i++)
+				output[tmp[i]]=i;
+			return new Permutation(output);
+		}
+		
+		
 		public static Permutation operator ++(Permutation x)
 		{
 			return x.GetNextPermutation();
@@ -311,9 +364,19 @@ namespace Permutation_Tool
 			return Permutation.Addition(x,y);
 		}
 		
+		public static Permutation operator -(Permutation x, Permutation y)
+		{
+			return x+Permutation.InverseSign(y);
+		}
+		
 		public static Permutation operator *(Permutation x, Permutation y)
 		{
 			return Permutation.PermutationProduct(x,y);
+		}
+		
+		public static Permutation operator /(Permutation x, Permutation y)
+		{
+			return x*Permutation.Inverse(y);
 		}
 		
 		public Permutation()
